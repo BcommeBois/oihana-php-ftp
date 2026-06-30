@@ -65,6 +65,14 @@ trait FtpConnectionTrait
         $this->initializeConfig( $init ) ;
     }
 
+    /**
+     * Closes the connection on destruction.
+     */
+    public function __destruct()
+    {
+        $this->disconnect() ;
+    }
+
     use LoggerTrait ;
 
     /**
@@ -138,14 +146,6 @@ trait FtpConnectionTrait
      * @var string
      */
     private string $transferMode = FtpTransferMode::BINARY ;
-
-    /**
-     * Closes the connection on destruction.
-     */
-    public function __destruct()
-    {
-        $this->disconnect() ;
-    }
 
     /**
      * Opens the connection and authenticates, retrying transient failures with
