@@ -84,6 +84,8 @@ class FtpCredentials implements Stringable
 
     /**
      * Wipes the password when the instance is destroyed.
+     *
+     * @throws SodiumException
      */
     public function __destruct()
     {

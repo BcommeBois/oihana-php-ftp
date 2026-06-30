@@ -35,3 +35,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   - `FtpTransferMode` enumeration (ASCII / binary) mapped to the `ext-ftp` resource
     constants, with a configurable per-client default (`Ftp::TRANSFER_MODE`) and a
     per-call override.
+- **Directory operations & listing** — `FtpDirectoryTrait` adds `createDirectory()`,
+  `createDirectories()` (recursive, `mkdir -p` style), `removeDirectory()`,
+  `changeDirectory()`, `parentDirectory()`, `currentDirectory()`, `listNames()`,
+  `rawList()` and `listFiles()`. `listFiles()` prefers the structured MLSD listing
+  and transparently falls back to parsing raw `ls -l` output.
+  - `oihana\ftp\schema\FtpFile`, a typed listing entry (name, type, size, modified
+    time, permissions, owner, group, link target) hydrated from MLSD facts.
+  - `oihana\ftp\utils\RawListParser`, a Unix long-listing parser, and the
+    `FtpFileType` enumeration mapping MLSD facts and `ls -l` type characters.
+  - The client now changes into the configured remote base directory (`Ftp::ROOT`)
+    right after login.

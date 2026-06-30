@@ -200,4 +200,35 @@ final class FtpClientTest extends TestCase
         $this->assertSame( [] , $driver->calls ) ;
         $this->assertFalse( $client->isConnected() ) ;
     }
+
+    public function testConnectChangesIntoTheConfiguredRootDirectory() : void
+    {
+        $driver = new FakeFtpDriver() ;
+        $client = new FtpClient( [ Ftp::HOST => 'host' , Ftp::ROOT => '/pub' ] , $driver ) ;
+
+        $client->connect() ;
+
+        $this->assertSame( '/pub' , $client->getRoot() ) ;
+        $this->assertSame( '/pub' , $driver->changedDirectory ) ;
+        $this->assertTrue( $client->isConnected() ) ;
+    }
+
+    public function testConnectThrowsWhenRootDirectoryCannotBeEntered() : void
+    {
+        $driver = new FakeFtpDriver() ;
+        $driver->changeDirectoryResult = false ;
+        $client = new FtpClient( [ Ftp::HOST => 'host' , Ftp::ROOT => '/missing' ] , $driver ) ;
+
+        try
+        {
+            $client->connect() ;
+            $this->fail( 'Expected FtpConnectionException.' ) ;
+        }
+        catch ( FtpConnectionException $exception )
+        {
+            $this->assertStringContainsString( 'root directory' , $exception->getMessage() ) ;
+        }
+
+        $this->assertFalse( $client->isConnected() ) ;
+    }
 }

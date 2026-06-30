@@ -158,4 +158,73 @@ interface FtpDriverInterface
      * @return bool True on success, false on failure.
      */
     public function chmod( int $mode , string $remoteFile ) : bool ;
+
+    /**
+     * Creates a remote directory.
+     *
+     * @param string $directory The directory to create.
+     *
+     * @return bool True on success, false on failure.
+     */
+    public function makeDirectory( string $directory ) : bool ;
+
+    /**
+     * Removes a remote directory.
+     *
+     * @param string $directory The directory to remove.
+     *
+     * @return bool True on success, false on failure.
+     */
+    public function removeDirectory( string $directory ) : bool ;
+
+    /**
+     * Changes the current working directory.
+     *
+     * @param string $directory The target directory.
+     *
+     * @return bool True on success, false on failure.
+     */
+    public function changeDirectory( string $directory ) : bool ;
+
+    /**
+     * Moves up to the parent directory.
+     *
+     * @return bool True on success, false on failure.
+     */
+    public function changeToParentDirectory() : bool ;
+
+    /**
+     * Returns the current working directory.
+     *
+     * @return string|false The directory path, or false on failure.
+     */
+    public function currentDirectory() : string|false ;
+
+    /**
+     * Returns the list of names in a directory.
+     *
+     * @param string $directory The directory to list.
+     *
+     * @return array<int,string>|false The names, or false on failure.
+     */
+    public function listNames( string $directory ) : array|false ;
+
+    /**
+     * Returns the raw directory listing, one server line per entry.
+     *
+     * @param string $directory The directory to list.
+     * @param bool   $recursive Whether to recurse into sub-directories.
+     *
+     * @return array<int,string>|false The raw lines, or false on failure.
+     */
+    public function rawList( string $directory , bool $recursive ) : array|false ;
+
+    /**
+     * Returns the structured (MLSD) directory listing when the server supports it.
+     *
+     * @param string $directory The directory to list.
+     *
+     * @return array<int,array<string,mixed>>|false The entries, or false when unsupported/failed.
+     */
+    public function mlsd( string $directory ) : array|false ;
 }

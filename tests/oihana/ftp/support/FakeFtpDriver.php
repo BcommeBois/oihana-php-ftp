@@ -196,4 +196,96 @@ class FakeFtpDriver implements FtpDriverInterface
 
         return $this->chmodResult ;
     }
+
+    // ----------- Directory operations
+
+    /**
+     * Configurable results for the directory operations.
+     */
+    public bool $makeDirectoryResult   = true ;
+    public bool $removeDirectoryResult = true ;
+    public bool $changeDirectoryResult = true ;
+    public bool $parentResult          = true ;
+
+    /**
+     * Configurable return values for the listing operations.
+     */
+    public string|false $currentDirectoryResult = '/home/user' ;
+
+    /** @var array<int,string>|false */
+    public array|false $listNamesResult = [] ;
+
+    /** @var array<int,string>|false */
+    public array|false $rawListResult = [] ;
+
+    /** @var array<int,array<string,mixed>>|false */
+    public array|false $mlsdResult = false ;
+
+    /**
+     * The directories created, in order.
+     * @var array<int,string>
+     */
+    public array $madeDirectories = [] ;
+
+    public ?string $removedDirectory = null ;
+    public ?string $changedDirectory = null ;
+
+    public function makeDirectory( string $directory ) : bool
+    {
+        $this->calls[]           = 'makeDirectory' ;
+        $this->madeDirectories[] = $directory ;
+
+        return $this->makeDirectoryResult ;
+    }
+
+    public function removeDirectory( string $directory ) : bool
+    {
+        $this->calls[]          = 'removeDirectory' ;
+        $this->removedDirectory = $directory ;
+
+        return $this->removeDirectoryResult ;
+    }
+
+    public function changeDirectory( string $directory ) : bool
+    {
+        $this->calls[]          = 'changeDirectory' ;
+        $this->changedDirectory = $directory ;
+
+        return $this->changeDirectoryResult ;
+    }
+
+    public function changeToParentDirectory() : bool
+    {
+        $this->calls[] = 'changeToParentDirectory' ;
+
+        return $this->parentResult ;
+    }
+
+    public function currentDirectory() : string|false
+    {
+        $this->calls[] = 'currentDirectory' ;
+
+        return $this->currentDirectoryResult ;
+    }
+
+    public function listNames( string $directory ) : array|false
+    {
+        $this->calls[] = 'listNames' ;
+
+        return $this->listNamesResult ;
+    }
+
+    public function rawList( string $directory , bool $recursive ) : array|false
+    {
+        $this->calls[] = 'rawList' ;
+
+        return $this->rawListResult ;
+    }
+
+    public function mlsd( string $directory ) : array|false
+    {
+        $this->calls[] = 'mlsd' ;
+
+        return $this->mlsdResult ;
+    }
 }

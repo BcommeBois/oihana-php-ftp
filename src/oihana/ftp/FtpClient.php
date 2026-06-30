@@ -3,6 +3,7 @@
 namespace oihana\ftp ;
 
 use oihana\ftp\traits\FtpConnectionTrait ;
+use oihana\ftp\traits\FtpDirectoryTrait ;
 use oihana\ftp\traits\FtpFileTrait ;
 
 /**
@@ -38,5 +39,6 @@ use oihana\ftp\traits\FtpFileTrait ;
 class FtpClient
 {
     use FtpConnectionTrait ,
+        FtpDirectoryTrait ,
         FtpFileTrait ;
 }

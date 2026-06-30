@@ -67,7 +67,7 @@ trait FtpFileTrait
 
         return $this ;
     }
-        
+
     /**
      * Deletes a remote file.
      *
@@ -249,21 +249,6 @@ trait FtpFileTrait
         if ( !is_file( $localFile ) || !is_readable( $localFile ) )
         {
             throw new FtpTransferException( sprintf( 'Local file "%s" does not exist or is not readable.' , $localFile ) ) ;
-        }
-    }
-
-    /**
-     * Asserts that the client holds an open connection.
-     *
-     * @return void
-     *
-     * @throws FtpTransferException When no connection is open.
-     */
-    private function ensureConnected() : void
-    {
-        if ( !$this->isConnected() )
-        {
-            throw new FtpTransferException( 'No active FTP connection. Call connect() first.' ) ;
         }
     }
 

@@ -155,4 +155,68 @@ class NativeFtpDriver implements FtpDriverInterface
     {
         return $this->connection !== null && ftp_chmod( $this->connection , $mode , $remoteFile ) !== false ;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function makeDirectory( string $directory ) : bool
+    {
+        return $this->connection !== null && ftp_mkdir( $this->connection , $directory ) !== false ;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function removeDirectory( string $directory ) : bool
+    {
+        return $this->connection !== null && ftp_rmdir( $this->connection , $directory ) ;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function changeDirectory( string $directory ) : bool
+    {
+        return $this->connection !== null && ftp_chdir( $this->connection , $directory ) ;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function changeToParentDirectory() : bool
+    {
+        return $this->connection !== null && ftp_cdup( $this->connection ) ;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function currentDirectory() : string|false
+    {
+        return $this->connection !== null ? ftp_pwd( $this->connection ) : false ;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function listNames( string $directory ) : array|false
+    {
+        return $this->connection !== null ? ftp_nlist( $this->connection , $directory ) : false ;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function rawList( string $directory , bool $recursive ) : array|false
+    {
+        return $this->connection !== null ? ftp_rawlist( $this->connection , $directory , $recursive ) : false ;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function mlsd( string $directory ) : array|false
+    {
+        return $this->connection !== null ? ftp_mlsd( $this->connection , $directory ) : false ;
+    }
 }
