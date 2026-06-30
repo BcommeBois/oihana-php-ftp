@@ -30,6 +30,44 @@ Install via [Composer](https://getcomposer.org):
 composer require oihana/php-ftp
 ```
 
+## ⚡ Usage
+
+```php
+use oihana\ftp\FtpClient ;
+use oihana\ftp\enums\Ftp ;
+use oihana\ftp\enums\FtpSecurity ;
+
+$client = new FtpClient
+([
+    Ftp::HOST     => 'ftp.example.org' ,
+    Ftp::USERNAME => 'alice' ,
+    Ftp::PASSWORD => 's3cr3t' ,
+    Ftp::SECURITY => FtpSecurity::SSL , // FTPS over TLS
+    Ftp::ROOT     => '/public' ,        // chdir right after login
+]) ;
+
+$client->connect() ;
+
+// Transfers
+$client->upload( '/local/report.pdf' , 'report.pdf' ) ;
+$client->download( 'archive.tar.gz' , '/local/archive.tar.gz' ) ;
+
+// Encrypted transfer (OpenSSL, via oihana/php-files)
+$client->uploadEncrypted( '/local/secret.txt' , 'secret.enc' , 'pass-phrase' ) ;
+
+// Directory listing (structured, MLSD with ls -l fallback)
+foreach ( $client->listFiles( '/public' ) as $file )
+{
+    echo $file->name , $file->isDirectory() ? '/' : '' , PHP_EOL ;
+}
+
+$client->disconnect() ;
+```
+
+> All transport calls go through `FtpDriverInterface`. Inject your own driver as the
+> second constructor argument to unit-test against an in-memory fake, or to plug in an
+> alternative transport later.
+
 ## ✅ Tests & coverage
 
 Run the full unit-test suite (PHPUnit, strict mode):

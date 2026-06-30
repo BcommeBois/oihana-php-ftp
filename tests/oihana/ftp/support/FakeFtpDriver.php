@@ -136,10 +136,27 @@ class FakeFtpDriver implements FtpDriverInterface
     public array $renameArgs = [] ;
     public array $chmodArgs  = [] ;
 
+    /**
+     * When true, {@see put()}/{@see get()} actually move bytes through {@see $storage},
+     * emulating a server so round-trip transfers (e.g. encrypted) can be asserted.
+     */
+    public bool $emulateStorage = false ;
+
+    /**
+     * The in-memory remote store, keyed by remote path.
+     * @var array<string,string>
+     */
+    public array $storage = [] ;
+
     public function get( string $localFile , string $remoteFile , int $mode ) : bool
     {
         $this->calls[]  = 'get' ;
         $this->getArgs  = [ 'localFile' => $localFile , 'remoteFile' => $remoteFile , 'mode' => $mode ] ;
+
+        if ( $this->emulateStorage && isset( $this->storage[ $remoteFile ] ) )
+        {
+            file_put_contents( $localFile , $this->storage[ $remoteFile ] ) ;
+        }
 
         return $this->getResult ;
     }
@@ -148,6 +165,11 @@ class FakeFtpDriver implements FtpDriverInterface
     {
         $this->calls[]  = 'put' ;
         $this->putArgs  = [ 'remoteFile' => $remoteFile , 'localFile' => $localFile , 'mode' => $mode ] ;
+
+        if ( $this->emulateStorage )
+        {
+            $this->storage[ $remoteFile ] = (string) file_get_contents( $localFile ) ;
+        }
 
         return $this->putResult ;
     }

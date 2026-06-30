@@ -4,7 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [1.0.0] - 2026-06-30
+
+First public release: a modern, strongly-typed FTP/FTPS client built on the native
+`ext-ftp` extension, mirroring the `oihana/php-*` architecture (trait-composed client,
+constant enumerations, optional PSR-3 logging) with a mockable transport layer that
+makes the whole surface testable without a live server (100% line coverage).
 
 ### Added
 
@@ -46,3 +51,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
     `FtpFileType` enumeration mapping MLSD facts and `ls -l` type characters.
   - The client now changes into the configured remote base directory (`Ftp::ROOT`)
     right after login.
+- **Client mixin & secure transfers** — `HasFtpClientTrait`, a mixin to hold and
+  resolve an `FtpClient` from a PSR-11 container (the `oihana` injection convention),
+  and `FtpCryptoTrait` with `uploadEncrypted()` / `downloadDecrypted()`, combining
+  transfers with `oihana\files\openssl\OpenSSLFileEncryption` (encrypt-then-upload,
+  download-then-decrypt, via a transient temporary file).
