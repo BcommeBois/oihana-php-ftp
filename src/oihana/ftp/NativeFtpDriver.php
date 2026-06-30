@@ -1,0 +1,94 @@
+<?php
+
+namespace oihana\ftp ;
+
+use FTP\Connection ;
+
+/**
+ * The production {@see FtpDriverInterface} implementation, backed by `ext-ftp`.
+ *
+ * Each method is a thin pass-through to the matching `ftp_*` function: the driver
+ * holds the {@see Connection} handle and carries no business logic. Because these
+ * calls cannot run without a live server, the class is excluded from coverage —
+ * the client logic that drives it is fully tested against an in-memory fake. An
+ * optional integration suite can exercise this driver against a real server.
+ *
+ * @package oihana\ftp
+ * @author  Marc Alcaraz (ekameleon)
+ * @since   1.0.0
+ *
+ * @codeCoverageIgnore
+ */
+class NativeFtpDriver implements FtpDriverInterface
+{
+    /**
+     * The underlying ext-ftp connection handle, or null when disconnected.
+     * @var Connection|null
+     */
+    private ?Connection $connection = null ;
+
+    /**
+     * @inheritDoc
+     */
+    public function connect( string $host , int $port , int $timeout , bool $secure ) : bool
+    {
+        $connection = $secure
+            ? @ftp_ssl_connect( $host , $port , $timeout )
+            : @ftp_connect( $host , $port , $timeout ) ;
+
+        if ( $connection === false )
+        {
+            return false ;
+        }
+
+        $this->connection = $connection ;
+
+        return true ;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function disconnect() : bool
+    {
+        if ( $this->connection !== null )
+        {
+            ftp_close( $this->connection ) ;
+            $this->connection = null ;
+        }
+
+        return true ;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isConnected() : bool
+    {
+        return $this->connection !== null ;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function login( string $username , string $password ) : bool
+    {
+        return $this->connection !== null && @ftp_login( $this->connection , $username , $password ) ;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setOption( int $option , int|bool $value ) : bool
+    {
+        return $this->connection !== null && ftp_set_option( $this->connection , $option , $value ) ;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setPassive( bool $passive ) : bool
+    {
+        return $this->connection !== null && ftp_pasv( $this->connection , $passive ) ;
+    }
+}

@@ -13,3 +13,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   workflows for CI (tests) and documentation (GitHub Pages), and the portable
   `tools/clover-to-markdown.php` coverage reporter shared across the
   `oihana/php-*` libraries.
+- **Connection core** — the `oihana\ftp\FtpClient` façade with FTP/FTPS connect,
+  authentication and clean teardown, retrying transient connection failures with
+  exponential backoff (terminal vs. retryable error handling) and optional PSR-3
+  logging.
+  - `FtpDriverInterface` with the production `NativeFtpDriver` (a thin `ext-ftp`
+    wrapper) — the transport seam that makes the whole client testable without a
+    live server and leaves room for a future SFTP driver.
+  - `oihana\ftp\options\FtpOptions`, a typed configuration object interchangeable
+    with a plain `Ftp`-keyed array.
+  - `oihana\ftp\auth\FtpCredentials`, a credentials holder that wipes the password
+    from memory on destruction.
+  - Enumerations `Ftp`, `FtpSecurity` and `FtpConnectionOption`, and the exception
+    hierarchy `FtpException` › `FtpConnectionException` / `FtpAuthenticationException`
+    / `FtpTransferException`.
