@@ -56,3 +56,6 @@ makes the whole surface testable without a live server (100% line coverage).
   and `FtpCryptoTrait` with `uploadEncrypted()` / `downloadDecrypted()`, combining
   transfers with `oihana\files\openssl\OpenSSLFileEncryption` (encrypt-then-upload,
   download-then-decrypt, via a transient temporary file).
+- **Documentation** — a bilingual (FR/EN) user wiki under `wiki/` covering getting
+  started, connection, transfers, directories, encryption, architecture, enumerations,
+  exceptions, security and testing.

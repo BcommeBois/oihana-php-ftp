@@ -8,6 +8,18 @@ A modern, strongly-typed **FTP / FTPS** client for PHP 8.4+, built in the spirit
 [![Total Downloads](https://img.shields.io/packagist/dt/oihana/php-ftp.svg?style=flat-square)](https://packagist.org/packages/oihana/php-ftp)  
 [![License](https://img.shields.io/packagist/l/oihana/php-ftp.svg?style=flat-square)](LICENSE)
 
+## 📚 Documentation
+
+User guides (FR + EN), with narrative explanations, examples and security notes:
+
+| | |
+|---|---|
+| 🇬🇧 **[English documentation](wiki/en/README.md)** | 🇫🇷 **[Documentation française](wiki/fr/README.md)** |
+| Getting started, connection, transfers, directories, encryption, architecture, security, testing. | Démarrage, connexion, transferts, répertoires, chiffrement, architecture, sécurité, tests. |
+
+Auto-generated API reference (phpDocumentor):  
+👉 https://bcommebois.github.io/oihana-php-ftp
+
 ## 🚀 Features
 
 - 🔌 **FTP & FTPS** (explicit TLS) over the native `ext-ftp` extension — zero runtime dependencies.
