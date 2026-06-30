@@ -107,4 +107,93 @@ class FakeFtpDriver implements FtpDriverInterface
 
         return true ;
     }
+
+    // ----------- File operations
+
+    /**
+     * Configurable results for the file operations.
+     */
+    public bool $getResult    = true ;
+    public bool $putResult    = true ;
+    public bool $appendResult = true ;
+    public bool $deleteResult = true ;
+    public bool $renameResult = true ;
+    public bool $chmodResult  = true ;
+
+    /**
+     * Configurable values returned by the metadata operations.
+     */
+    public int $sizeResult         = 0 ;
+    public int $lastModifiedResult = 0 ;
+
+    /**
+     * The arguments captured for the last call of each operation.
+     * @var array<string,mixed>
+     */
+    public array $getArgs    = [] ;
+    public array $putArgs    = [] ;
+    public array $appendArgs = [] ;
+    public array $renameArgs = [] ;
+    public array $chmodArgs  = [] ;
+
+    public function get( string $localFile , string $remoteFile , int $mode ) : bool
+    {
+        $this->calls[]  = 'get' ;
+        $this->getArgs  = [ 'localFile' => $localFile , 'remoteFile' => $remoteFile , 'mode' => $mode ] ;
+
+        return $this->getResult ;
+    }
+
+    public function put( string $remoteFile , string $localFile , int $mode ) : bool
+    {
+        $this->calls[]  = 'put' ;
+        $this->putArgs  = [ 'remoteFile' => $remoteFile , 'localFile' => $localFile , 'mode' => $mode ] ;
+
+        return $this->putResult ;
+    }
+
+    public function append( string $remoteFile , string $localFile , int $mode ) : bool
+    {
+        $this->calls[]     = 'append' ;
+        $this->appendArgs  = [ 'remoteFile' => $remoteFile , 'localFile' => $localFile , 'mode' => $mode ] ;
+
+        return $this->appendResult ;
+    }
+
+    public function delete( string $remoteFile ) : bool
+    {
+        $this->calls[] = 'delete' ;
+
+        return $this->deleteResult ;
+    }
+
+    public function rename( string $from , string $to ) : bool
+    {
+        $this->calls[]     = 'rename' ;
+        $this->renameArgs  = [ 'from' => $from , 'to' => $to ] ;
+
+        return $this->renameResult ;
+    }
+
+    public function size( string $remoteFile ) : int
+    {
+        $this->calls[] = 'size' ;
+
+        return $this->sizeResult ;
+    }
+
+    public function lastModified( string $remoteFile ) : int
+    {
+        $this->calls[] = 'lastModified' ;
+
+        return $this->lastModifiedResult ;
+    }
+
+    public function chmod( int $mode , string $remoteFile ) : bool
+    {
+        $this->calls[]    = 'chmod' ;
+        $this->chmodArgs  = [ 'mode' => $mode , 'remoteFile' => $remoteFile ] ;
+
+        return $this->chmodResult ;
+    }
 }

@@ -27,3 +27,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   - Enumerations `Ftp`, `FtpSecurity` and `FtpConnectionOption`, and the exception
     hierarchy `FtpException` › `FtpConnectionException` / `FtpAuthenticationException`
     / `FtpTransferException`.
+- **File operations** — `FtpFileTrait` adds single-file transfers to the client:
+  `download()` (creates the local parent directory on demand, reusing
+  `oihana\files\makeDirectory`), `upload()`, `append()`, `delete()`, `rename()`,
+  `size()`, `lastModified()`, `chmod()` and `exists()`. Each raises an
+  `FtpTransferException` on failure and on a missing connection.
+  - `FtpTransferMode` enumeration (ASCII / binary) mapped to the `ext-ftp` resource
+    constants, with a configurable per-client default (`Ftp::TRANSFER_MODE`) and a
+    per-call override.

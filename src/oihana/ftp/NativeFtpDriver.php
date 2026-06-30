@@ -91,4 +91,68 @@ class NativeFtpDriver implements FtpDriverInterface
     {
         return $this->connection !== null && ftp_pasv( $this->connection , $passive ) ;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function get( string $localFile , string $remoteFile , int $mode ) : bool
+    {
+        return $this->connection !== null && ftp_get( $this->connection , $localFile , $remoteFile , $mode ) ;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function put( string $remoteFile , string $localFile , int $mode ) : bool
+    {
+        return $this->connection !== null && ftp_put( $this->connection , $remoteFile , $localFile , $mode ) ;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function append( string $remoteFile , string $localFile , int $mode ) : bool
+    {
+        return $this->connection !== null && ftp_append( $this->connection , $remoteFile , $localFile , $mode ) ;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function delete( string $remoteFile ) : bool
+    {
+        return $this->connection !== null && ftp_delete( $this->connection , $remoteFile ) ;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function rename( string $from , string $to ) : bool
+    {
+        return $this->connection !== null && ftp_rename( $this->connection , $from , $to ) ;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function size( string $remoteFile ) : int
+    {
+        return $this->connection !== null ? ftp_size( $this->connection , $remoteFile ) : -1 ;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function lastModified( string $remoteFile ) : int
+    {
+        return $this->connection !== null ? ftp_mdtm( $this->connection , $remoteFile ) : -1 ;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function chmod( int $mode , string $remoteFile ) : bool
+    {
+        return $this->connection !== null && ftp_chmod( $this->connection , $mode , $remoteFile ) !== false ;
+    }
 }

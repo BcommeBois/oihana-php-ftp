@@ -13,6 +13,7 @@ use oihana\ftp\auth\FtpCredentials ;
 use oihana\ftp\enums\Ftp ;
 use oihana\ftp\enums\FtpConnectionOption ;
 use oihana\ftp\enums\FtpSecurity ;
+use oihana\ftp\enums\FtpTransferMode ;
 use oihana\ftp\exceptions\FtpAuthenticationException ;
 use oihana\ftp\exceptions\FtpConnectionException ;
 use oihana\ftp\FtpDriverInterface ;
@@ -181,6 +182,16 @@ trait FtpConnectionTrait
     }
 
     /**
+     * Returns the default transfer mode applied to file operations.
+     *
+     * @return string One of the {@see FtpTransferMode} constants.
+     */
+    public function getTransferMode() : string
+    {
+        return $this->transferMode ;
+    }
+
+    /**
      * Indicates whether a connection is currently open.
      *
      * @return bool True when the client is connected.
@@ -292,6 +303,12 @@ trait FtpConnectionTrait
     private int $timeout = 90 ;
 
     /**
+     * The default transfer mode applied to file operations.
+     * @var string
+     */
+    private string $transferMode = FtpTransferMode::BINARY ;
+
+    /**
      * Performs a single connect + authenticate sequence.
      *
      * @return static This instance.
@@ -342,6 +359,9 @@ trait FtpConnectionTrait
         $security       = $init[ Ftp::SECURITY ] ?? FtpSecurity::getDefault() ;
         $this->security = is_string( $security ) ? $security : FtpSecurity::NONE ;
         $this->secure   = FtpSecurity::isSecure( $this->security ) ;
+
+        $mode               = $init[ Ftp::TRANSFER_MODE ] ?? FtpTransferMode::getDefault() ;
+        $this->transferMode = is_string( $mode ) ? $mode : FtpTransferMode::BINARY ;
 
         $this->credentials = new FtpCredentials
         (

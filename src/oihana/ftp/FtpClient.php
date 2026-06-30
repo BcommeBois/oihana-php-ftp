@@ -3,6 +3,7 @@
 namespace oihana\ftp ;
 
 use oihana\ftp\traits\FtpConnectionTrait ;
+use oihana\ftp\traits\FtpFileTrait ;
 
 /**
  * A modern, strongly-typed FTP / FTPS client.
@@ -36,5 +37,6 @@ use oihana\ftp\traits\FtpConnectionTrait ;
  */
 class FtpClient
 {
-    use FtpConnectionTrait ;
+    use FtpConnectionTrait ,
+        FtpFileTrait ;
 }
