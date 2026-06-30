@@ -45,6 +45,28 @@ class FtpFile
     }
 
     /**
+     * Builds an entry from a structured MLSD record (as returned by `ftp_mlsd`).
+     *
+     * @param array<string,mixed> $entry The MLSD facts (`name`, `type`, `size`, `modify`, …).
+     *
+     * @return self The hydrated entry.
+     */
+    public static function fromMlsd( array $entry ) : self
+    {
+        $modify = isset( $entry[ 'modify' ] ) ? self::parseMlsdTime( (string) $entry[ 'modify' ] ) : null ;
+
+        return new self(
+            name         : (string) ( $entry[ 'name' ] ?? '' ) ,
+            type         : FtpFileType::fromMlsd( (string) ( $entry[ 'type' ] ?? '' ) ) ,
+            size         : (int) ( $entry[ 'size' ] ?? 0 ) ,
+            modifiedTime : $modify ,
+            permissions  : isset( $entry[ 'UNIX.mode' ] ) ? (string) $entry[ 'UNIX.mode' ] : ( $entry[ 'perm' ] ?? null ) ,
+            owner        : isset( $entry[ 'UNIX.owner' ] ) ? (string) $entry[ 'UNIX.owner' ] : null ,
+            group        : isset( $entry[ 'UNIX.group' ] ) ? (string) $entry[ 'UNIX.group' ] : null ,
+        ) ;
+    }
+
+    /**
      * Indicates whether the entry is a directory.
      *
      * @return bool True for a directory.
@@ -74,27 +96,7 @@ class FtpFile
         return $this->type === FtpFileType::LINK ;
     }
 
-    /**
-     * Builds an entry from a structured MLSD record (as returned by `ftp_mlsd`).
-     *
-     * @param array<string,mixed> $entry The MLSD facts (`name`, `type`, `size`, `modify`, …).
-     *
-     * @return self The hydrated entry.
-     */
-    public static function fromMlsd( array $entry ) : self
-    {
-        $modify = isset( $entry[ 'modify' ] ) ? self::parseMlsdTime( (string) $entry[ 'modify' ] ) : null ;
-
-        return new self(
-            name         : (string) ( $entry[ 'name' ] ?? '' ) ,
-            type         : FtpFileType::fromMlsd( (string) ( $entry[ 'type' ] ?? '' ) ) ,
-            size         : (int) ( $entry[ 'size' ] ?? 0 ) ,
-            modifiedTime : $modify ,
-            permissions  : isset( $entry[ 'UNIX.mode' ] ) ? (string) $entry[ 'UNIX.mode' ] : ( $entry[ 'perm' ] ?? null ) ,
-            owner        : isset( $entry[ 'UNIX.owner' ] ) ? (string) $entry[ 'UNIX.owner' ] : null ,
-            group        : isset( $entry[ 'UNIX.group' ] ) ? (string) $entry[ 'UNIX.group' ] : null ,
-        ) ;
-    }
+    // ----------- Private
 
     /**
      * Parses an MLSD `modify` fact (`YYYYMMDDHHMMSS`, UTC) into a Unix timestamp.

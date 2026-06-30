@@ -2,6 +2,8 @@
 
 namespace oihana\ftp\traits ;
 
+use oihana\files\exceptions\DirectoryException;
+use oihana\files\exceptions\FileException;
 use oihana\files\openssl\OpenSSLFileEncryption ;
 
 use oihana\ftp\enums\FtpTransferMode ;
@@ -24,14 +26,52 @@ use function oihana\files\makeDirectory ;
 trait FtpCryptoTrait
 {
     /**
+     * Downloads an encrypted remote file and decrypts it to the local filesystem.
+     *
+     * @param string $remoteFile The ciphertext source on the server.
+     * @param string $localFile The plaintext destination on the local filesystem.
+     * @param string $passphrase The passphrase used to derive the decryption key.
+     *
+     * @return static This instance, for chaining.
+     *
+     * @throws FtpTransferException When the transfer fails.
+     * @throws DirectoryException
+     * @throws FileException
+     */
+    public function downloadDecrypted( string $remoteFile , string $localFile , string $passphrase ) : static
+    {
+        $this->ensureConnected() ;
+
+        $cipherFile = $this->temporaryCryptoFile() ;
+
+        try
+        {
+            $this->download( $remoteFile , $cipherFile , FtpTransferMode::BINARY , false ) ;
+            makeDirectory( dirname( $localFile ) ) ;
+            new OpenSSLFileEncryption( $passphrase )->decrypt( $cipherFile , $localFile ) ;
+        }
+        finally
+        {
+            if ( is_file( $cipherFile ) )
+            {
+                @unlink( $cipherFile ) ;
+            }
+        }
+
+        return $this ;
+    }
+
+    /**
      * Encrypts a local file and uploads the ciphertext to the server.
      *
-     * @param string $localFile  The plaintext source on the local filesystem.
+     * @param string $localFile The plaintext source on the local filesystem.
      * @param string $remoteFile The destination path on the server.
      * @param string $passphrase The passphrase used to derive the encryption key.
      *
      * @return static This instance, for chaining.
      *
+     * @throws DirectoryException
+     * @throws FileException
      * @throws FtpTransferException When the local file is missing, or the transfer fails.
      */
     public function uploadEncrypted( string $localFile , string $remoteFile , string $passphrase ) : static
@@ -47,42 +87,8 @@ trait FtpCryptoTrait
 
         try
         {
-            ( new OpenSSLFileEncryption( $passphrase ) )->encrypt( $localFile , $cipherFile ) ;
+            new OpenSSLFileEncryption( $passphrase )->encrypt( $localFile , $cipherFile ) ;
             $this->upload( $cipherFile , $remoteFile , FtpTransferMode::BINARY ) ;
-        }
-        finally
-        {
-            if ( is_file( $cipherFile ) )
-            {
-                @unlink( $cipherFile ) ;
-            }
-        }
-
-        return $this ;
-    }
-
-    /**
-     * Downloads an encrypted remote file and decrypts it to the local filesystem.
-     *
-     * @param string $remoteFile The ciphertext source on the server.
-     * @param string $localFile  The plaintext destination on the local filesystem.
-     * @param string $passphrase The passphrase used to derive the decryption key.
-     *
-     * @return static This instance, for chaining.
-     *
-     * @throws FtpTransferException When the transfer fails.
-     */
-    public function downloadDecrypted( string $remoteFile , string $localFile , string $passphrase ) : static
-    {
-        $this->ensureConnected() ;
-
-        $cipherFile = $this->temporaryCryptoFile() ;
-
-        try
-        {
-            $this->download( $remoteFile , $cipherFile , FtpTransferMode::BINARY , false ) ;
-            makeDirectory( dirname( $localFile ) ) ;
-            ( new OpenSSLFileEncryption( $passphrase ) )->decrypt( $cipherFile , $localFile ) ;
         }
         finally
         {

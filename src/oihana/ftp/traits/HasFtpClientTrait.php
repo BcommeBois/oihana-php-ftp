@@ -31,15 +31,15 @@ use oihana\ftp\FtpClient ;
 trait HasFtpClientTrait
 {
     /**
+     * The 'ftp' parameter key.
+     */
+    public const string FTP = 'ftp' ;
+
+    /**
      * The FTP client reference.
      * @var FtpClient|null
      */
     public ?FtpClient $ftp = null ;
-
-    /**
-     * The 'ftp' parameter key.
-     */
-    public const string FTP = 'ftp' ;
 
     /**
      * Asserts that the 'ftp' client property has been initialized.

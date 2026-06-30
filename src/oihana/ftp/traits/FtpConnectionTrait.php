@@ -6,6 +6,8 @@ use DI\DependencyException;
 use DI\NotFoundException;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface ;
+use Psr\Container\NotFoundExceptionInterface;
+use ReflectionException;
 
 use oihana\logging\LoggerTrait ;
 
@@ -20,8 +22,6 @@ use oihana\ftp\exceptions\FtpTransferException ;
 use oihana\ftp\FtpDriverInterface ;
 use oihana\ftp\NativeFtpDriver ;
 use oihana\ftp\options\FtpOptions ;
-use Psr\Container\NotFoundExceptionInterface;
-use ReflectionException;
 
 /**
  * Provides the connection lifecycle of the {@see \oihana\ftp\FtpClient}: configuration,
@@ -36,16 +36,14 @@ use ReflectionException;
  */
 trait FtpConnectionTrait
 {
-    use LoggerTrait ;
-
     /**
      * Creates a new FTP client.
      *
-     * @param array|FtpOptions $init Configuration keyed by {@see Ftp} constants
+     * @param array|FtpOptions        $init      Configuration keyed by {@see Ftp} constants
      *                                            (or an {@see FtpOptions} instance): `host`, `port`,
      *                                            `username`, `password`, `security`, `passive`,
      *                                            `timeout`, `maxRetries`, plus any logger options.
-     * @param FtpDriverInterface|null $driver The transport driver. Defaults to a {@see NativeFtpDriver}.
+     * @param FtpDriverInterface|null $driver    The transport driver. Defaults to a {@see NativeFtpDriver}.
      * @param ContainerInterface|null $container Optional PSR-11 container used to resolve a logger service.
      *
      * @throws DependencyException
@@ -67,11 +65,87 @@ trait FtpConnectionTrait
         $this->initializeConfig( $init ) ;
     }
 
+    use LoggerTrait ;
+
+    /**
+     * Whether the client is currently connected.
+     * @var bool
+     */
+    private bool $connected = false ;
+
+    /**
+     * The login credentials.
+     * @var FtpCredentials
+     */
+    private FtpCredentials $credentials ;
+
+    /**
+     * The transport driver.
+     * @var FtpDriverInterface
+     */
+    private FtpDriverInterface $driver ;
+
+    /**
+     * The remote host.
+     * @var string
+     */
+    private string $host = '' ;
+
     /**
      * The maximum number of attempts for a transient (connection) failure.
      * @var int
      */
     public int $maxRetries = 3 ;
+
+    /**
+     * Whether passive mode is enabled.
+     * @var bool
+     */
+    private bool $passive = true ;
+
+    /**
+     * The control-channel port.
+     * @var int
+     */
+    private int $port = 21 ;
+
+    /**
+     * The remote base directory entered right after login (empty to stay in the default directory).
+     * @var string
+     */
+    private string $root = '' ;
+
+    /**
+     * Whether the transport is secured (FTPS).
+     * @var bool
+     */
+    private bool $secure = false ;
+
+    /**
+     * The transport security mode.
+     * @var string
+     */
+    private string $security = FtpSecurity::NONE ;
+
+    /**
+     * The connection timeout, in seconds.
+     * @var int
+     */
+    private int $timeout = 90 ;
+
+    /**
+     * The default transfer mode applied to file operations.
+     * @var string
+     */
+    private string $transferMode = FtpTransferMode::BINARY ;
+
+    /**
+     * Closes the connection on destruction.
+     */
+    public function __destruct()
+    {
+        $this->disconnect() ;
+    }
 
     /**
      * Opens the connection and authenticates, retrying transient failures with
@@ -237,14 +311,6 @@ trait FtpConnectionTrait
         return $this->secure ;
     }
 
-    /**
-     * Closes the connection on destruction.
-     */
-    public function __destruct()
-    {
-        $this->disconnect() ;
-    }
-
     // ----------- Protected
 
     /**
@@ -265,6 +331,27 @@ trait FtpConnectionTrait
     // ----------- Private
 
     /**
+     * Changes into the configured root directory, if any, right after connecting.
+     *
+     * @return void
+     *
+     * @throws FtpConnectionException When the root directory cannot be entered.
+     */
+    private function applyRoot() : void
+    {
+        if ( $this->root === '' )
+        {
+            return ;
+        }
+
+        if ( !$this->driver->changeDirectory( $this->root ) )
+        {
+            $this->disconnect() ;
+            throw new FtpConnectionException( sprintf( 'Unable to change to the root directory "%s".' , $this->root ) ) ;
+        }
+    }
+
+    /**
      * Asserts that the client holds an open connection.
      *
      * Shared by the file and directory operations.
@@ -280,72 +367,6 @@ trait FtpConnectionTrait
             throw new FtpTransferException( 'No active FTP connection. Call connect() first.' ) ;
         }
     }
-
-    /**
-     * The transport driver.
-     * @var FtpDriverInterface
-     */
-    private FtpDriverInterface $driver ;
-
-    /**
-     * The login credentials.
-     * @var FtpCredentials
-     */
-    private FtpCredentials $credentials ;
-
-    /**
-     * Whether the client is currently connected.
-     * @var bool
-     */
-    private bool $connected = false ;
-
-    /**
-     * The remote host.
-     * @var string
-     */
-    private string $host = '' ;
-
-    /**
-     * Whether passive mode is enabled.
-     * @var bool
-     */
-    private bool $passive = true ;
-
-    /**
-     * The remote base directory entered right after login (empty to stay in the default directory).
-     * @var string
-     */
-    private string $root = '' ;
-
-    /**
-     * The control-channel port.
-     * @var int
-     */
-    private int $port = 21 ;
-
-    /**
-     * Whether the transport is secured (FTPS).
-     * @var bool
-     */
-    private bool $secure = false ;
-
-    /**
-     * The transport security mode.
-     * @var string
-     */
-    private string $security = FtpSecurity::NONE ;
-
-    /**
-     * The connection timeout, in seconds.
-     * @var int
-     */
-    private int $timeout = 90 ;
-
-    /**
-     * The default transfer mode applied to file operations.
-     * @var string
-     */
-    private string $transferMode = FtpTransferMode::BINARY ;
 
     /**
      * Performs a single connect + authenticate sequence.
@@ -376,27 +397,6 @@ trait FtpConnectionTrait
 
         $this->info( sprintf( 'Connected to FTP server "%s:%d" (secure: %s, passive: %s).' ,
             $this->host , $this->port , $this->secure ? 'yes' : 'no' , $this->passive ? 'yes' : 'no' ) ) ;
-    }
-
-    /**
-     * Changes into the configured root directory, if any, right after connecting.
-     *
-     * @return void
-     *
-     * @throws FtpConnectionException When the root directory cannot be entered.
-     */
-    private function applyRoot() : void
-    {
-        if ( $this->root === '' )
-        {
-            return ;
-        }
-
-        if ( !$this->driver->changeDirectory( $this->root ) )
-        {
-            $this->disconnect() ;
-            throw new FtpConnectionException( sprintf( 'Unable to change to the root directory "%s".' , $this->root ) ) ;
-        }
     }
 
     /**

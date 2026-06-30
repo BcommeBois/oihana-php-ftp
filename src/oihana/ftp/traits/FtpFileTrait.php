@@ -186,30 +186,6 @@ trait FtpFileTrait
     }
 
     /**
-     * Uploads a local file to the server.
-     *
-     * @param string      $localFile  The source path on the local filesystem.
-     * @param string      $remoteFile The destination path on the server.
-     * @param string|null $mode       The transfer mode; defaults to the client's configured mode.
-     *
-     * @return static This instance, for chaining.
-     *
-     * @throws FtpTransferException When the local file is missing, the upload fails, or no connection is open.
-     */
-    public function upload( string $localFile , string $remoteFile , ?string $mode = null ) : static
-    {
-        $this->ensureConnected() ;
-        $this->assertLocalFile( $localFile ) ;
-
-        if ( !$this->driver->put( $remoteFile , $localFile , $this->resolveTransferMode( $mode ) ) )
-        {
-            throw new FtpTransferException( sprintf( 'Failed to upload "%s" to "%s".' , $localFile , $remoteFile ) ) ;
-        }
-
-        return $this ;
-    }
-
-    /**
      * Returns the size of a remote file, in bytes.
      *
      * @param string $remoteFile The remote path.
@@ -232,6 +208,29 @@ trait FtpFileTrait
         return $size ;
     }
 
+    /**
+     * Uploads a local file to the server.
+     *
+     * @param string      $localFile  The source path on the local filesystem.
+     * @param string      $remoteFile The destination path on the server.
+     * @param string|null $mode       The transfer mode; defaults to the client's configured mode.
+     *
+     * @return static This instance, for chaining.
+     *
+     * @throws FtpTransferException When the local file is missing, the upload fails, or no connection is open.
+     */
+    public function upload( string $localFile , string $remoteFile , ?string $mode = null ) : static
+    {
+        $this->ensureConnected() ;
+        $this->assertLocalFile( $localFile ) ;
+
+        if ( !$this->driver->put( $remoteFile , $localFile , $this->resolveTransferMode( $mode ) ) )
+        {
+            throw new FtpTransferException( sprintf( 'Failed to upload "%s" to "%s".' , $localFile , $remoteFile ) ) ;
+        }
+
+        return $this ;
+    }
 
     // ----------- Private
 

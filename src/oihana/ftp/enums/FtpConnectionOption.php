@@ -19,14 +19,14 @@ class FtpConnectionOption
     use ConstantsTrait ;
 
     /**
-     * The timeout, in seconds, used for network operations. Mirrors `FTP_TIMEOUT_SEC`.
-     */
-    public const int TIMEOUT_SEC = FTP_TIMEOUT_SEC ;
-
-    /**
      * Whether to seek to a restart point on resumed transfers. Mirrors `FTP_AUTOSEEK`.
      */
     public const int AUTOSEEK = FTP_AUTOSEEK ;
+
+    /**
+     * The timeout, in seconds, used for network operations. Mirrors `FTP_TIMEOUT_SEC`.
+     */
+    public const int TIMEOUT_SEC = FTP_TIMEOUT_SEC ;
 
     /**
      * Whether to use the IP address returned by the server for passive transfers.

@@ -17,14 +17,14 @@ class FtpFileType
     use ConstantsTrait ;
 
     /**
-     * A regular file.
-     */
-    public const string FILE = 'file' ;
-
-    /**
      * A directory.
      */
     public const string DIRECTORY = 'dir' ;
+
+    /**
+     * A regular file.
+     */
+    public const string FILE = 'file' ;
 
     /**
      * A symbolic link.

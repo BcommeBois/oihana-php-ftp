@@ -32,16 +32,36 @@ class FtpCredentials implements Stringable
     }
 
     /**
+     * The login password.
+     * @var string
+     */
+    public string $password ;
+
+    /**
      * The login user name.
      * @var string
      */
     public string $username ;
 
     /**
-     * The login password.
-     * @var string
+     * Wipes the password when the instance is destroyed.
+     *
+     * @throws SodiumException
      */
-    public string $password ;
+    public function __destruct()
+    {
+        $this->clear() ;
+    }
+
+    /**
+     * Returns the user name. The password is never exposed this way.
+     *
+     * @return string The login user name.
+     */
+    public function __toString() : string
+    {
+        return $this->username ;
+    }
 
     /**
      * Wipes the password from memory and resets it to an empty string.
@@ -80,25 +100,5 @@ class FtpCredentials implements Stringable
     public function isAnonymous() : bool
     {
         return $this->username === '' || strtolower( $this->username ) === 'anonymous' ;
-    }
-
-    /**
-     * Wipes the password when the instance is destroyed.
-     *
-     * @throws SodiumException
-     */
-    public function __destruct()
-    {
-        $this->clear() ;
-    }
-
-    /**
-     * Returns the user name. The password is never exposed this way.
-     *
-     * @return string The login user name.
-     */
-    public function __toString() : string
-    {
-        return $this->username ;
     }
 }

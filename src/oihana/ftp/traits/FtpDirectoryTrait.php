@@ -21,21 +21,21 @@ use oihana\ftp\utils\RawListParser ;
 trait FtpDirectoryTrait
 {
     /**
-     * Creates a remote directory.
+     * Changes the current working directory.
      *
-     * @param string $directory The directory to create.
+     * @param string $directory The target directory.
      *
      * @return static This instance, for chaining.
      *
-     * @throws FtpTransferException When the creation fails or no connection is open.
+     * @throws FtpTransferException When the change fails or no connection is open.
      */
-    public function createDirectory( string $directory ) : static
+    public function changeDirectory( string $directory ) : static
     {
         $this->ensureConnected() ;
 
-        if ( !$this->driver->makeDirectory( $directory ) )
+        if ( !$this->driver->changeDirectory( $directory ) )
         {
-            throw new FtpTransferException( sprintf( 'Failed to create the directory "%s".' , $directory ) ) ;
+            throw new FtpTransferException( sprintf( 'Failed to change to the directory "%s".' , $directory ) ) ;
         }
 
         return $this ;
@@ -73,61 +73,21 @@ trait FtpDirectoryTrait
     }
 
     /**
-     * Removes a remote directory.
+     * Creates a remote directory.
      *
-     * @param string $directory The directory to remove.
-     *
-     * @return static This instance, for chaining.
-     *
-     * @throws FtpTransferException When the removal fails or no connection is open.
-     */
-    public function removeDirectory( string $directory ) : static
-    {
-        $this->ensureConnected() ;
-
-        if ( !$this->driver->removeDirectory( $directory ) )
-        {
-            throw new FtpTransferException( sprintf( 'Failed to remove the directory "%s".' , $directory ) ) ;
-        }
-
-        return $this ;
-    }
-
-    /**
-     * Changes the current working directory.
-     *
-     * @param string $directory The target directory.
+     * @param string $directory The directory to create.
      *
      * @return static This instance, for chaining.
      *
-     * @throws FtpTransferException When the change fails or no connection is open.
+     * @throws FtpTransferException When the creation fails or no connection is open.
      */
-    public function changeDirectory( string $directory ) : static
+    public function createDirectory( string $directory ) : static
     {
         $this->ensureConnected() ;
 
-        if ( !$this->driver->changeDirectory( $directory ) )
+        if ( !$this->driver->makeDirectory( $directory ) )
         {
-            throw new FtpTransferException( sprintf( 'Failed to change to the directory "%s".' , $directory ) ) ;
-        }
-
-        return $this ;
-    }
-
-    /**
-     * Moves up to the parent directory.
-     *
-     * @return static This instance, for chaining.
-     *
-     * @throws FtpTransferException When the change fails or no connection is open.
-     */
-    public function parentDirectory() : static
-    {
-        $this->ensureConnected() ;
-
-        if ( !$this->driver->changeToParentDirectory() )
-        {
-            throw new FtpTransferException( 'Failed to change to the parent directory.' ) ;
+            throw new FtpTransferException( sprintf( 'Failed to create the directory "%s".' , $directory ) ) ;
         }
 
         return $this ;
@@ -152,53 +112,6 @@ trait FtpDirectoryTrait
         }
 
         return $directory ;
-    }
-
-    /**
-     * Returns the names of the entries in a directory.
-     *
-     * @param string $directory The directory to list (defaults to the current directory).
-     *
-     * @return array<int,string> The entry names.
-     *
-     * @throws FtpTransferException When the listing fails or no connection is open.
-     */
-    public function listNames( string $directory = '.' ) : array
-    {
-        $this->ensureConnected() ;
-
-        $names = $this->driver->listNames( $directory ) ;
-
-        if ( $names === false )
-        {
-            throw new FtpTransferException( sprintf( 'Failed to list the names in "%s".' , $directory ) ) ;
-        }
-
-        return $names ;
-    }
-
-    /**
-     * Returns the raw, server-formatted listing of a directory.
-     *
-     * @param string $directory The directory to list (defaults to the current directory).
-     * @param bool   $recursive Whether to recurse into sub-directories.
-     *
-     * @return array<int,string> The raw listing lines.
-     *
-     * @throws FtpTransferException When the listing fails or no connection is open.
-     */
-    public function rawList( string $directory = '.' , bool $recursive = false ) : array
-    {
-        $this->ensureConnected() ;
-
-        $list = $this->driver->rawList( $directory , $recursive ) ;
-
-        if ( $list === false )
-        {
-            throw new FtpTransferException( sprintf( 'Failed to list "%s".' , $directory ) ) ;
-        }
-
-        return $list ;
     }
 
     /**
@@ -232,5 +145,92 @@ trait FtpDirectoryTrait
         }
 
         return RawListParser::parse( $raw ) ;
+    }
+
+    /**
+     * Returns the names of the entries in a directory.
+     *
+     * @param string $directory The directory to list (defaults to the current directory).
+     *
+     * @return array<int,string> The entry names.
+     *
+     * @throws FtpTransferException When the listing fails or no connection is open.
+     */
+    public function listNames( string $directory = '.' ) : array
+    {
+        $this->ensureConnected() ;
+
+        $names = $this->driver->listNames( $directory ) ;
+
+        if ( $names === false )
+        {
+            throw new FtpTransferException( sprintf( 'Failed to list the names in "%s".' , $directory ) ) ;
+        }
+
+        return $names ;
+    }
+
+    /**
+     * Moves up to the parent directory.
+     *
+     * @return static This instance, for chaining.
+     *
+     * @throws FtpTransferException When the change fails or no connection is open.
+     */
+    public function parentDirectory() : static
+    {
+        $this->ensureConnected() ;
+
+        if ( !$this->driver->changeToParentDirectory() )
+        {
+            throw new FtpTransferException( 'Failed to change to the parent directory.' ) ;
+        }
+
+        return $this ;
+    }
+
+    /**
+     * Returns the raw, server-formatted listing of a directory.
+     *
+     * @param string $directory The directory to list (defaults to the current directory).
+     * @param bool   $recursive Whether to recurse into sub-directories.
+     *
+     * @return array<int,string> The raw listing lines.
+     *
+     * @throws FtpTransferException When the listing fails or no connection is open.
+     */
+    public function rawList( string $directory = '.' , bool $recursive = false ) : array
+    {
+        $this->ensureConnected() ;
+
+        $list = $this->driver->rawList( $directory , $recursive ) ;
+
+        if ( $list === false )
+        {
+            throw new FtpTransferException( sprintf( 'Failed to list "%s".' , $directory ) ) ;
+        }
+
+        return $list ;
+    }
+
+    /**
+     * Removes a remote directory.
+     *
+     * @param string $directory The directory to remove.
+     *
+     * @return static This instance, for chaining.
+     *
+     * @throws FtpTransferException When the removal fails or no connection is open.
+     */
+    public function removeDirectory( string $directory ) : static
+    {
+        $this->ensureConnected() ;
+
+        if ( !$this->driver->removeDirectory( $directory ) )
+        {
+            throw new FtpTransferException( sprintf( 'Failed to remove the directory "%s".' , $directory ) ) ;
+        }
+
+        return $this ;
     }
 }

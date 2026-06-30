@@ -24,24 +24,9 @@ class Ftp
     public const string HOST = 'host' ;
 
     /**
-     * The remote control-channel port. Defaults to 21.
+     * The maximum number of attempts for a transient connection failure. Defaults to 3.
      */
-    public const string PORT = 'port' ;
-
-    /**
-     * The login user name. Use `anonymous` for anonymous access.
-     */
-    public const string USERNAME = 'username' ;
-
-    /**
-     * The login password.
-     */
-    public const string PASSWORD = 'password' ;
-
-    /**
-     * The transport security mode, one of the {@see FtpSecurity} constants.
-     */
-    public const string SECURITY = 'security' ;
+    public const string MAX_RETRIES = 'maxRetries' ;
 
     /**
      * Whether to use passive mode (recommended behind NAT/firewalls). Defaults to true.
@@ -49,9 +34,14 @@ class Ftp
     public const string PASSIVE = 'passive' ;
 
     /**
-     * The connection timeout, in seconds. Defaults to 90.
+     * The login password.
      */
-    public const string TIMEOUT = 'timeout' ;
+    public const string PASSWORD = 'password' ;
+
+    /**
+     * The remote control-channel port. Defaults to 21.
+     */
+    public const string PORT = 'port' ;
 
     /**
      * An optional remote base directory the client changes into right after login.
@@ -59,12 +49,22 @@ class Ftp
     public const string ROOT = 'root' ;
 
     /**
+     * The transport security mode, one of the {@see FtpSecurity} constants.
+     */
+    public const string SECURITY = 'security' ;
+
+    /**
+     * The connection timeout, in seconds. Defaults to 90.
+     */
+    public const string TIMEOUT = 'timeout' ;
+
+    /**
      * The default transfer mode, one of the {@see FtpTransferMode} constants.
      */
     public const string TRANSFER_MODE = 'transferMode' ;
 
     /**
-     * The maximum number of attempts for a transient connection failure. Defaults to 3.
+     * The login user name. Use `anonymous` for anonymous access.
      */
-    public const string MAX_RETRIES = 'maxRetries' ;
+    public const string USERNAME = 'username' ;
 }
